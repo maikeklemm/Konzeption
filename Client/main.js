@@ -5,19 +5,20 @@ var Konzeption;
 
 //window.setTimeout(deleteChat, 300000); //Unser 5 minuten Timer --> wird glaub nicht mehr gebraucht
 const countDate = new Date ("June23, 2030, 00:00:00");  //globale Variable die das Datum hält, von dem aus der Timer rechnet
-var questions = ["What if animals could talk, which would be the rudest?","What if gravity was slowly disappearing?","What if you could design a planet. What would your perfect planet look like?"];
+// var questions = ["What if animals could talk, which would be the rudest?","What if gravity was slowly disappearing?","What if you could design a planet. What would your perfect planet look like?"];
 var question;
 let chatField;
 let messageField;
 let modal;
 let btn;
 let span;
-let url = "http://localhost:5001/";
+let url = "http://localhost:5500/";
 //let url: string = "https://fiveminutenonsense.herokuapp.com";
 function handleLoad(_event) {
-    
+   
+    setInterval(updateChat, 1000);
     setInterval(countdown, 100);   // Interval, das jede Sekunde den Timer aktualisiert (countdown funktion steht im Dokument ganz unten)
-    getQuestion();  // getQuestion Funktion soll aufgerufen werden um Frage zu generieren
+    // getQuestion();  // getQuestion Funktion soll aufgerufen werden um Frage zu generieren
     
     console.log("start the chat");
     chatField = document.querySelector(".chatfield");
@@ -34,6 +35,7 @@ function handleLoad(_event) {
         modal.style.display = "none";
     };
 } //handleLoad zu
+
 //MODAL Für den Help Button
 window.onclick = function (event) {
     if (event.target == modal) {
@@ -41,10 +43,20 @@ window.onclick = function (event) {
     }
 };
 
-function getQuestion() {
+async function updateChat(){
+    // diese funktion wird jede sekunde aufgerufen und soll die neuen nachrichten aus dem server hohlen und anzeigen
+
+        // chatField.innerHTML += "<p>" + "You: " + messageField.value + "</p>";
+        // messageField.value = "";
+    
+}
+async function getQuestion() {
     console.log("get Question"); 
-	question = questions[Math.floor(Math.random() * questions.length)];
-    document.querySelector(".question").innerText = question;
+    let response = await fetch(url + "?" + "command=retrieveQ");
+    let responseText = await response.text();
+    console.log(responseText);
+	// question = questions[Math.floor(Math.random() * questions.length)];
+    document.querySelector(".question").innerText = responseText;
     
 }
 function deleteChat() {
@@ -56,9 +68,9 @@ async function sendText(_event) {
     console.log("dein Text wurde gesendet");
     if (_event.key === "Enter") {
         let message = messageField.value;
-        chatField.innerHTML += "<p>" + "You: " + messageField.value + "</p>";
-        messageField.value = "";
-        console.log("du hast enter gedrückt");
+        // chatField.innerHTML += "<p>" + "You: " + messageField.value + "</p>";
+        // messageField.value = "";
+        // console.log("du hast enter gedrückt");
         sendMessageToServer(message);
     }
 }
@@ -71,8 +83,11 @@ async function sendMessageToServer(text) {
         };
         let query = new URLSearchParams(data);
         let response = await fetch(url + "/save?" + query.toString());
-        let responseJSON = await response.json();
-        console.log(await responseJSON);
+        let responseText = await response.text();       // hier stand JSON und json statt text
+        console.log(await responseText + "kam vom server i guess");
+
+        // chatField.innerHTML += "<p>" + "You: " + messageField.value + "</p>";
+        // messageField.value = "";
     }
     }
     
@@ -114,6 +129,8 @@ async function sendMessageToServer(text) {
         if (textMinute == 0 && textSecond == 0) {
         deleteChat();    
         console.log("delete Chat");
+        getQuestion();  // getQuestion Funktion soll aufgerufen werden um Frage zu generieren
+
         };
         
     };
